@@ -45,18 +45,18 @@ top_equal <- salaries %>%
 highlight <- filter(top_15, occupation %in% top_diff$occupation)
 
 # Graph about gender pay gap in highest paying jobs
-p <- ggplot(top_15, aes(x = average_taxable_income/1000,
+p <- ggplot(top_15, aes(x = average_taxable_income,
                         y = fct_reorder(occupation, average_taxable_income))) +
   geom_line(aes(group = occupation), alpha = 0.5) +
   geom_point(aes(color = gender), size = 1.25, alpha = 0.5) +
   geom_line(data = highlight, aes(group = occupation)) +
   geom_point(data = highlight, aes(color = gender), size = 2) +
   theme_minimal() +
-  scale_x_continuous(limits = c(100, 600)) +
+  scale_x_continuous(labels = scales::dollar, limits = c(100000, 600000)) +
   scale_color_manual(values = c("#7BCEF8", "#233FBB")) +
   labs(title = "Gender Pay Gap for Top 15 Highest Paying Jobs",
        y = "Occupation",
-       x = "Average Gross Annual Salary \n (Thousands of A$)",
+       x = "Average Gross Annual Salary (A$)",
        caption = "Source: Australian Tax Data") +
   theme(
     plot.title = element_text(size = 12, face = "bold", hjust = 0.5),
@@ -74,15 +74,16 @@ p <- ggplot(top_15, aes(x = average_taxable_income/1000,
 p
 
 # Graph about jobs where women are paid equally or more
-p2 <- ggplot(top_equal, aes(x = average_taxable_income/1000,
+p2 <- ggplot(top_equal, aes(x = average_taxable_income,
                             y = fct_reorder(occupation, average_taxable_income))) +
   geom_line(aes(group = occupation), alpha = 0.8) +
   geom_point(aes(color = gender), size = 1.25, alpha = 0.8) +
   theme_minimal() +
+  scale_x_continuous(labels = scales::dollar, limits = c(50000, 300000)) +
   scale_color_manual(values = c("#7BCEF8", "#233FBB")) +
   labs(title = "Top 10 Highest Paid Jobs that have Gender Pay Equality",
        y = "Occupation",
-       x = "Average Gross Annual Salary \n (Thousands of A$)",
+       x = "Average Gross Annual Salary (A$)",
        caption = "Source: Australian Tax Data") +
   theme(
     plot.title = element_text(size = 12, face = "bold", hjust = 0.5),
