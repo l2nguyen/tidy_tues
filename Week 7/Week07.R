@@ -81,4 +81,5 @@ w4 <-  waffle(age61_up, rows = 5, size = 0.5, colors = cols, pad = 1, xlab = "1 
   theme(plot.caption = element_text(size = 8, margin = margin(t = 10), color = "grey20"),
         axis.title = element_text(size = 10, face = "bold"))
 
-combined <- iron(w1, w2, w3, w4)
+iron(w1, w2, w3, w4)
+
