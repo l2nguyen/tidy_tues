@@ -40,6 +40,7 @@ data %>%
   filter(!is.na(Age)) %>%
   gather(key = "movie", value = "rank", contains("Episode")) %>%
   filter(rank == 1) %>%
+  mutate(movie = gsub(" Rank$", "", movie)) %>%
   group_by(Age, movie) %>%
   summarise(count = n()) %>%
   mutate(perc = round(count/sum(count) * 100, digits = 0)) -> age_fave
