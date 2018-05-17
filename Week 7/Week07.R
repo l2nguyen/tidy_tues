@@ -2,6 +2,7 @@ library("tidyverse")
 library("here")
 library("ggridges")
 library("RColorBrewer")
+library("waffle")
 
 data <- read_csv(here("StarWars.csv"), col_names = TRUE)
 
@@ -42,9 +43,11 @@ data %>%
   filter(rank == 1) %>%
   group_by(Age, movie) %>%
   summarise(count = n()) %>%
-  mutate(perc = round((count/sum(count) * 100), digits = 1)) -> age_fave
+  mutate(perc = as.integer(round((count/sum(count) * 100), digits = 0))) -> age_fave
 
 p1 <- ggplot(data = age_fave, aes(x = Age, y = perc, group = movie, fill = movie)) +
   geom_bar(stat = "identity")
 
 p1 + scale_fill_brewer(palette = "RdYlBu")
+
+age_fave %>% waffle(perc, rows=10)
