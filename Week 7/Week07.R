@@ -1,6 +1,5 @@
 library("tidyverse")
 library("here")
-library("ggridges")
 library("RColorBrewer")
 library("waffle")
 
@@ -41,13 +40,47 @@ data %>%
   filter(!is.na(Age)) %>%
   gather(key = "movie", value = "rank", contains("Episode")) %>%
   filter(rank == 1) %>%
+  mutate(movie = gsub(" Rank$", "", movie)) %>%
   group_by(Age, movie) %>%
   summarise(count = n()) %>%
-  mutate(perc = as.integer(round((count/sum(count) * 100), digits = 0))) -> age_fave
+  mutate(perc = round(count/sum(count) * 100, digits = 0)) -> age_fave
 
+# stacked bar chart
 p1 <- ggplot(data = age_fave, aes(x = Age, y = perc, group = movie, fill = movie)) +
   geom_bar(stat = "identity")
 
 p1 + scale_fill_brewer(palette = "RdYlBu")
 
-age_fave %>% waffle(perc, rows=10)
+# make colors for waffle
+cols <- brewer.pal(6, "RdBu")
+
+age_fave %>%
+  select(-count) %>%
+  spread(movie, perc) -> wide_age
+
+# Make vectors for waffle charts
+age18_29 <- unlist(wide_age[1, 2:7])
+age30_44 <- unlist(wide_age[2, 2:7])
+age45_60 <- unlist(wide_age[3, 2:7])
+age61_up <- unlist(wide_age[4, 2:7])
+
+# Make waffle graph for each group
+w1 <-  waffle(age18_29, rows = 5, size = 0.5, colors = cols, pad = 1) +
+  labs(title = "Favorite Star Wars Movie by Age Groups",
+       subtitle = "Age 18-29") +
+  theme(plot.title = element_text(size = 14, face = "bold", hjust = 0))
+
+w2 <-  waffle(age30_44, rows = 5, size = 0.5, colors = cols, pad = 1) +
+  labs(subtitle = "Age 30-44")
+
+w3 <-  waffle(age45_60, rows = 5, size = 0.5, colors = cols, pad = 1) +
+  labs(subtitle = "Age 45-60")
+
+w4 <-  waffle(age61_up, rows = 5, size = 0.5, colors = cols, pad = 1, xlab = "1 Square = 1 Percent") +
+  labs(subtitle = "Age 61 and older",
+       caption = "Source: Surveymonkey audience") +
+  theme(plot.caption = element_text(size = 8, margin = margin(t = 10), color = "grey20"),
+        axis.title = element_text(size = 10, face = "bold"))
+
+iron(w1, w2, w3, w4)
+
