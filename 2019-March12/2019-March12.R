@@ -20,7 +20,7 @@ board_games %>%
                                         "10+ hrs"))) %>%
   ggplot(aes(x = playtime_cats, y = average_rating, fill = playtime_cats)) +
   geom_violin() +
-  scale_fill_brewer(palette = "BuPu") +
+  scale_fill_brewer(palette = "Blues") +
   theme_minimal() +
   labs(x = "Average Playtime",
        y = "Average User Rating",
