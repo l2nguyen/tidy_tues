@@ -10,4 +10,3 @@ deaths <- read_xlsx(here("global_mortality.xlsx"))
 names(deaths) <- str_trim(
   str_remove_all(names(deaths), "[[:punct:]]")
 )
-

@@ -43,10 +43,11 @@ data %>%
   mutate(movie = gsub(" Rank$", "", movie)) %>%
   group_by(Age, movie) %>%
   summarise(count = n()) %>%
-  mutate(perc = round(count/sum(count) * 100, digits = 0)) -> age_fave
+  mutate(perc = round(count / sum(count) * 100, digits = 0)) -> age_fave
 
 # stacked bar chart
-p1 <- ggplot(data = age_fave, aes(x = Age, y = perc, group = movie, fill = movie)) +
+p1 <- ggplot(data = age_fave,
+    aes(x = Age, y = perc, group = movie, fill = movie)) +
   geom_bar(stat = "identity")
 
 p1 + scale_fill_brewer(palette = "RdYlBu")
@@ -83,4 +84,3 @@ w4 <-  waffle(age61_up, rows = 5, size = 0.5, colors = cols, pad = 1, xlab = "1 
         axis.title = element_text(size = 10, face = "bold"))
 
 iron(w1, w2, w3, w4)
-
