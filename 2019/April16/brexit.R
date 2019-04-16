@@ -31,6 +31,7 @@ ggplot(brexit_manip, aes(x=date, y=percent, col=response)) +
   theme(
     legend.position = "none",
     plot.title = element_text(size = 14, hjust=0),
+    plot.caption = element_text(hjust = 0, face = "bold"),
     axis.title.x = element_blank(),
     axis.title.y.left = element_text(size=9, face="italic", angle = 0,
                                      margin= margin(0,-55,0,0)
