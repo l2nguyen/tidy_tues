@@ -1,5 +1,4 @@
 library(tidyverse)
-library(lubridate)
 library(ggridges)
 library(hrbrthemes)
 
@@ -22,7 +21,8 @@ tv_anime <- tidy_anime %>%
   filter(type=="TV",
          scored_by>1000) %>%
   mutate(rating = factor(rating),
-         start_date = ymd(start_date),
+         start_date = lubridate::ymd(start_date),
+         # Make scores into categorical variable
          score_bins = cut(score,
                           breaks = c(1,4.99,7.99,10),
                           labels=c("Low (5 and below)", "Average (5-8)", "High (8 and above)"))
@@ -53,7 +53,8 @@ ggplot(tv_anime, aes(x=score, y=scored_by, fill=rating)) +
   facet_wrap(.~rating) +
   scale_y_log10()
 
-# Number of rating by score bins
+#  Number of rating for each score bins
+# Posted on Twitter
 ggplot(tv_anime, aes(x=scored_by, y=score_bins, fill=score_bins)) +
   geom_density_ridges() +
   scale_x_log10() +
