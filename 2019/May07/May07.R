@@ -3,6 +3,7 @@ library(plotly)
 library(wbstats) # package to interact with WDI API
 library(httr)
 library(jsonlite)
+library(RColorBrewer)
 
 # load data
 student_ratio <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-05-07/student_teacher_ratio.csv")
@@ -51,20 +52,54 @@ wdi_clean <- wdi_raw %>%
 ratio_joined <- ratio_clean %>%
   # join with student ratio data
   left_join(wdi_clean, by = c('country_code' = 'iso3c', 'year')) %>%
-  filter(!is.na(gdp_per_cap) & !is.na(student_ratio))
+  filter(!is.na(gdp_per_cap) & !is.na(student_ratio)) %>%
+  mutate(gdp_per_cap = round(gdp_per_cap, digits = 0),
+         student_ratio = round(student_ratio, digits = 1))
 
+#-------------- PLOT --------------------#
+
+# make dataset of primary for latest year
 primary <- ratio_joined %>%
   filter(indicator=="Primary Education") %>%
   filter(year == 2016)
 
-plot_ly(data = primary, x = ~gdp_per_cap,
-        y = ~student_ratio,
-        color = ~region,
-        type = 'scatter',
-        mode = 'markers',
+# scale down bubble sizes
+slope <- 8e-6
+primary$size <- sqrt(primary$pop * slope)
+
+# set colors
+pal <- brewer.pal(6, name = "Set1")
+
+plot_ly(data = primary, x = ~gdp_per_cap, y = ~student_ratio,
+        color = ~region, size = ~size,
+        type = 'scatter', mode = 'markers',
+        colors = pal,
+        sizes = c(min(primary$size), max(primary$size)),
         hoverinfo = 'text',
-        text = ~paste('Country: ', country,
-                      '<br /> Student to teacher ratio: ', student_ratio,
-                      '<br /> GDP per capita: ', gdp_per_cap)) %>%
-  layout(xaxis = list(title = 'GDP Per Capita', type = "log"),
-         yaxis = list(title = 'Student to Teacher Ratio'))
+        text = ~paste0('Country: ', country,
+                      '<br>Student to teacher ratio: ', student_ratio,
+                      '<br>GDP per capita: ', "$", gdp_per_cap),
+        marker = list(symbol = 'circle', sizemode = 'diameter', opacity = 0.5,
+                      line = list(color = 'rgb(0, 0, 0)',
+                                  width = 1))
+        ) %>%
+  layout(title = list(text = "<b>Student Teacher Ratio by GDP Per Capita for 2016</b>", size = 16),
+         xaxis = list(title = 'GDP per capita (constant 2010 US$)',
+                      type = "log",
+                      gridcolor = 'rgb(255, 255, 255)',
+                      zerolinewidth = 1),
+         yaxis = list(title = 'Student to Teacher Ratio',
+                      gridcolor = 'rgb(255, 255, 255)',
+                      zerolinewidth = 1,
+                      gridwith = 2,
+                      range = c(0, 95)),
+         legend = list(orientation = 'h', y = -0.15),
+         annotations = list(x = 1, y = -0.1,
+                            text = "Source: UNESCO & World Bank",
+                            showarrow = F,
+                            xref = 'paper', x = 0,
+                            yref = 'paper', y = -0.3,
+                            font=list(size=8)),
+         paper_bgcolor = 'rgb(240, 240, 240)',
+         plot_bgcolor = 'rgb(240, 240, 240)'
+         )
